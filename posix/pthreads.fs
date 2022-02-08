@@ -19,6 +19,7 @@ z" libpthread.so" shared-library pthread
   z" pthread_create" 4 pthread pthread_create
   z" pthread_join" 2 pthread pthread_join
   z" pthread_exit" 1 pthread pthread_exit
+  z" pthread_cancel" 1 pthread pthread_cancel
 
 'sys 11 cells + @ constant forth_run
 
