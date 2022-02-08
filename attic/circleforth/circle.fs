@@ -25,6 +25,8 @@ create rstack 1000 cells allot   variable rp rstack rp !
 variable ip   variable w
 : run   0 >r begin ip @ @ cell ip +! dup w ! @ execute ip @ 0= until ;
 
+: name>string ( a n -- a n ) ;
+
 variable last
 ( Create dictionary entry: { name-bytes name-len flags link code } )
 : splace ( a n -- ) dup >r 0 do dup c@ c, 1+ loop drop r> , ;
@@ -45,6 +47,43 @@ variable last
 : dolit: ip @ @ cell ip +! ;
 : branch ip @ @ ip ! ;
 : 0branch if cell ip +! else ip @ @ ip ! then ;
+
+( parse-name )
+
+: u< < ;
+
+: isspace? ( c -- f )
+   BL 1+ U< ;
+: isnotspace? ( c -- f )
+   isspace? 0= ;
+
+: /string ( a n o --  a n )
+  dup
+  rot rot - ( a o n' )
+  rot rot + ( n' a' )
+  swap ;
+
+: xt-skip ( addr1 n1 xt -- addr2 n2 )
+   \ skip all characters satisfying xt ( c -- f )
+   >R
+   BEGIN
+     DUP
+   WHILE
+     OVER C@ R@ EXECUTE
+   WHILE
+     1 /STRING
+   REPEAT THEN
+   R> DROP ;
+
+: tuck ( n1 n2 -- n2 n1 n2 )
+  dup rot rot ;
+
+: parse-name ( "name" -- c-addr u )
+  SOURCE >IN @ /STRING
+  ['] isspace? xt-skip OVER >R
+  ['] isnotspace? xt-skip ( end-word restlen r: start-word )
+  2DUP 1 MIN + SOURCE DROP - >IN !
+  DROP R> TUCK - ;
 
 ( CREATE DOES> )
 : create   parse-name create-name ['] docreate: code! 0 , ;
@@ -71,7 +110,7 @@ p: 0=   p: 0<   p: +   p: */mod   p: and   p: or   p: xor
 p: dup   p: swap   p: over   p: drop   p: sp@   p: sp!
 p: .   p: type   p: key
 p: @   p: !   p: c@   p: c!
-p: parse-name   p: parse   p: here   p: ,   p: allot
+( p: parse-name )   p: parse   p: here   p: ,   p: allot
 p: base   p: depth   p: cell
 ( Reimplemented primitives )
 p: r@   p: >r   p: r>   p: rp@   p: rp!
