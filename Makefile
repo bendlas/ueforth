@@ -232,6 +232,15 @@ POSIX_BOOT =  $(COMMON_PHASE1) \
 $(GEN)/posix_boot.h: tools/source_to_string.js $(POSIX_BOOT) | $(GEN)
 	$< boot $(VERSION) $(REVISION) $(POSIX_BOOT) >$@
 
+MIN_BOOT =  $(COMMON_PHASE1) \
+            posix/posix.fs posix/allocation.fs \
+            $(COMMON_PHASE2) \
+            posix/mineboot.fs \
+            common/fini.fs
+$(GEN)/min_boot.h: common/source_to_string.js $(MIN_BOOT) | $(GEN)
+	$< boot $(VERSION) $(REVISION) $(MIN_BOOT) >$@
+
+
 WINDOWS_BOOT = $(COMMON_PHASE1) \
                windows/windows_core.fs \
                windows/windows_files.fs \
@@ -357,6 +366,18 @@ $(POSIX)/ueforth: \
     $(GEN)/posix_boot.h | $(POSIX)
 	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
 	strip $(STRIP_ARGS) $@
+
+$(POSIX)/mineforth: \
+    posix/min.c \
+    common/opcodes.h \
+    common/extra_opcodes.h \
+    common/calls.h \
+    common/calling.h \
+    common/floats.h \
+    common/interp.h \
+    common/core.h \
+    $(GEN)/min_boot.h | $(POSIX)
+	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
 
 # ---- WINDOWS ----
 
