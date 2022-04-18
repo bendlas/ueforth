@@ -365,7 +365,6 @@ $(POSIX)/ueforth: \
     common/core.h \
     $(GEN)/posix_boot.h | $(POSIX)
 	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
-	strip $(STRIP_ARGS) $@
 
 $(POSIX)/mineforth: \
     posix/min.c \
