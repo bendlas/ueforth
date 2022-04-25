@@ -21,6 +21,8 @@
 # include <sys/stat.h>
 # include <sys/select.h>
 
+# include "clib/memory_support.h"
+
 // Optional hook to pull in words for userwords.h
 # if __has_include("userwords.h")
 #  include "userwords.h"
@@ -59,9 +61,7 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   FLOATING_POINT_LIST
 
 #define REQUIRED_MEMORY_SUPPORT \
-  YV(internals, MALLOC, SET malloc(n0)) \
-  YV(internals, SYSFREE, free(a0); DROP) \
-  YV(internals, REALLOC, SET realloc(a1, n0); NIP) \
+  CLIB_MEMORY_SUPPORT \
   YV(internals, heap_caps_malloc, SET heap_caps_malloc(n1, n0); NIP) \
   YV(internals, heap_caps_free, heap_caps_free(a0); DROP) \
   YV(internals, heap_caps_realloc, \

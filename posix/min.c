@@ -15,6 +15,7 @@
 #include <dlfcn.h>
 #include <sys/mman.h>
 
+#include "clib/memory_support.h"
 #include "common/opcodes.h"
 #include "common/extra_opcodes.h"
 #include "common/floats.h"
@@ -26,6 +27,7 @@
 
 #define PLATFORM_OPCODE_LIST \
   Y(DLSYM, tos = (cell_t) dlsym(a1, c0); --sp) \
+  CLIB_MEMORY_SUPPORT \
   CALLING_OPCODE_LIST \
   FLOATING_POINT_LIST
 

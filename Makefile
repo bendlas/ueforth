@@ -233,7 +233,7 @@ $(GEN)/posix_boot.h: tools/source_to_string.js $(POSIX_BOOT) | $(GEN)
 	$< boot $(VERSION) $(REVISION) $(POSIX_BOOT) >$@
 
 MIN_BOOT =  $(COMMON_PHASE1) \
-            posix/posix.fs posix/allocation.fs \
+            clib/allocation.fs \
             $(COMMON_PHASE2) \
             posix/mineboot.fs \
             common/fini.fs
@@ -257,7 +257,7 @@ $(GEN)/windows_boot.h: tools/source_to_string.js $(WINDOWS_BOOT) | $(GEN)
 	$< -win boot $(VERSION) $(REVISION) $(WINDOWS_BOOT) >$@
 
 ESP32_BOOT = $(COMMON_PHASE1) \
-             esp32/allocation.fs \
+             clib/allocation.fs \
              $(COMMON_PHASE2) $(COMMON_FILETOOLS) \
              esp32/bindings.fs esp32/platform.fs \
              posix/httpd.fs posix/web_interface.fs esp32/web_interface.fs \
@@ -368,6 +368,7 @@ $(POSIX)/ueforth: \
 
 $(POSIX)/mineforth: \
     posix/min.c \
+    clib/memory_support.h \
     common/opcodes.h \
     common/extra_opcodes.h \
     common/calls.h \
