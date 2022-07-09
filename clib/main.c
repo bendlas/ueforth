@@ -36,7 +36,7 @@
 #include "common/core.h"
 #include "common/interp.h"
 
-#include "gen/min_boot.h"
+#include "gen/clib_boot.h"
 
 int main(int argc, char *argv[]) {
   void *heap = mmap(

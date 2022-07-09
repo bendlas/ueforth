@@ -23,12 +23,13 @@ GEN = $(OUT)/gen
 RES = $(OUT)/resources
 WEB = $(OUT)/web
 POSIX = $(OUT)/posix
+CLIB = $(OUT)/clib
 WINDOWS = $(OUT)/windows
 ESP32 = $(OUT)/esp32
 ESP32_SIM = $(OUT)/esp32-sim
 DEPLOY = $(OUT)/deploy
 
-CFLAGS_COMMON = -O2 -I ./ -I $(OUT)
+CFLAGS_COMMON = -I ./ -I $(OUT)
 
 CFLAGS_MINIMIZE = \
                 -s \
@@ -42,7 +43,6 @@ CFLAGS_MINIMIZE = \
                 -ffunction-sections -fdata-sections \
                 -fmerge-all-constants
 CFLAGS = $(CFLAGS_COMMON) \
-         $(CFLAGS_MINIMIZE) \
          -std=c++11 \
          -Wall \
          -Werror \
@@ -234,10 +234,9 @@ $(GEN)/posix_boot.h: tools/source_to_string.js $(POSIX_BOOT) | $(GEN)
 
 MIN_BOOT =  $(COMMON_PHASE1) \
             clib/allocation.fs \
-            $(COMMON_PHASE2) \
-            posix/mineboot.fs \
-            common/fini.fs
-$(GEN)/min_boot.h: common/source_to_string.js $(MIN_BOOT) | $(GEN)
+            clib/autoboot.fs \
+            clib/fini.fs
+$(GEN)/clib_boot.h: common/source_to_string.js $(MIN_BOOT) | $(GEN)
 	$< boot $(VERSION) $(REVISION) $(MIN_BOOT) >$@
 
 
@@ -366,8 +365,11 @@ $(POSIX)/ueforth: \
     $(GEN)/posix_boot.h | $(POSIX)
 	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
 
-$(POSIX)/mineforth: \
-    posix/min.c \
+$(CLIB):
+	mkdir -p $@
+
+$(CLIB)/ueforth: \
+    clib/main.c \
     clib/memory_support.h \
     common/opcodes.h \
     common/extra_opcodes.h \
@@ -376,8 +378,8 @@ $(POSIX)/mineforth: \
     common/floats.h \
     common/interp.h \
     common/core.h \
-    $(GEN)/min_boot.h | $(POSIX)
-	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
+    $(GEN)/clib_boot.h | $(CLIB)
+	$(CXX) $(CFLAGS) -ggdb3 -DPRINT_ERRORS=1 -DTRACE_CREATE=1 -DTRACE_CALLS=1 $< -o $@ $(LIBS)
 
 # ---- WINDOWS ----
 
