@@ -45,7 +45,7 @@ CFLAGS_MINIMIZE = \
 CFLAGS = $(CFLAGS_COMMON) \
          -std=c++11 \
          -Wall \
-         -Werror \
+         -Wno-error \
          -no-pie \
          -Wl,--gc-sections
 STRIP_ARGS = -S \
