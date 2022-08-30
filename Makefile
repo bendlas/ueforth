@@ -23,6 +23,7 @@ GEN = $(OUT)/gen
 RES = $(OUT)/resources
 WEB = $(OUT)/web
 POSIX = $(OUT)/posix
+CLIB = $(OUT)/clib
 WINDOWS = $(OUT)/windows
 ESP32 = $(OUT)/esp32
 ESP32_SIM = $(OUT)/esp32-sim
@@ -275,6 +276,14 @@ WINDOWS_BOOT_EXTRA = windows/windows_user.fs \
 $(GEN)/windows_boot_extra.h: tools/source_to_string.js $(WINDOWS_BOOT_EXTRA) | $(GEN)
 	$< -win boot_extra $(VERSION) $(REVISION) $(WINDOWS_BOOT_EXTRA) >$@
 
+CLIB_BOOT =  $(COMMON_PHASE1) \
+             clib/allocation.fs \
+             $(COMMON_PHASE2) \
+             clib/autoboot.fs \
+             common/fini.fs
+$(GEN)/clib_boot.h: tools/source_to_string.js $(CLIB_BOOT) | $(GEN)
+	$< boot $(VERSION) $(REVISION) $(CLIB_BOOT) >$@
+
 WINDOWS_BOOT = $(COMMON_PHASE1) \
                windows/windows_core.fs \
                windows/windows_files.fs \
@@ -485,6 +494,29 @@ $(POSIX)/ueforth: \
     common/bits.h \
     common/core.h \
     $(GEN)/posix_boot.h | $(POSIX)
+	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
+	strip $(STRIP_ARGS) $@
+
+# ---- CLIB ----
+
+clib: clib_target
+clib_target: $(CLIB)/ueforth
+
+$(CLIB):
+	mkdir -p $@
+
+$(CLIB)/ueforth: \
+    clib/main.c \
+    common/tier0_opcodes.h \
+    common/tier1_opcodes.h \
+    common/tier2_opcodes.h \
+    common/calls.h \
+    common/calling.h \
+    common/floats.h \
+    common/interp.h \
+    common/bits.h \
+    common/core.h \
+    $(GEN)/clib_boot.h | $(CLIB)
 	$(CXX) $(CFLAGS) $< -o $@ $(LIBS)
 	strip $(STRIP_ARGS) $@
 
