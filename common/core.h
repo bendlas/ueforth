@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#define PRINT_ERRORS 0
+#define PRINT_ERRORS 1
+#define TRACE_CREATE 1
+#define TRACE_CALLS 1
 
 #define CELL_MASK (sizeof(cell_t) - 1)
 #define CELL_LEN(n) (((n) + CELL_MASK) / sizeof(cell_t))
@@ -29,6 +31,17 @@
 
 #if PRINT_ERRORS
 #include <stdio.h>
+void putsn(const int len, const char * str) {
+  for(int i=0;i<len;i++){
+    putchar(str[i]);
+  }
+  fflush(stdout);
+}
+void log_err(const char* label, const size_t length, const void * string) {
+  fprintf(stderr, label);
+  fwrite((void *) string, 1, length, stderr);
+  fprintf(stderr, "\n");
+}
 #endif
 
 enum {
@@ -143,6 +156,9 @@ static void finish(void) {
 }
 
 static void create(const char *name, cell_t nlength, cell_t flags, void *op) {
+#if PRINT_ERRORS && TRACE_CREATE
+  log_err("defining: ", nlength, name);
+#endif
   finish();
   g_sys->heap = (cell_t *) CELL_ALIGNED(g_sys->heap);
   for (cell_t n = nlength; n; --n) { CCOMMA(*name++); }  // name
@@ -179,6 +195,9 @@ static cell_t *evaluate1(cell_t *rp) {
   UNPARK;
   cell_t name;
   cell_t len = parse(' ', &name);
+#if PRINT_ERRORS && TRACE_CALLS
+  log_err("Parsed, evaluting: ", len, (void *) name);
+#endif
   if (len == 0) { DUP; tos = 0; PARK; return rp; }  // ignore empty
   cell_t xt = find((const char *) name, len);
   if (xt) {
@@ -189,9 +208,9 @@ static cell_t *evaluate1(cell_t *rp) {
     }
   } else {
 #if PRINT_ERRORS
-    fprintf(stderr, "CANT FIND: ");
-    fwrite((void *) name, 1, len, stderr);
-    fprintf(stderr, "\n");
+       fprintf(stderr, "CANT FIND: ");
+       fwrite((void *) name, 1, len, stderr);
+       fprintf(stderr, "\n");
 #endif
     return 0;
   }
