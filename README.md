@@ -36,6 +36,7 @@ ninja pico-ice
 ninja win32
 ninja win64
 ninja web
+ninja clib
 ```
 
 A build that excludes the slower components can be configured with:
