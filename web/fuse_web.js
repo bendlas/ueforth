@@ -1,4 +1,4 @@
-#! /usr/bin/env nodejs
+#! /usr/bin/env node
 // Copyright 2021 Bradley D. Nelson
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
