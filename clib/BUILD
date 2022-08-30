@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SetVersions(
-    version='7.0.7.21',
-    stable='7.0.6.19',
-    old_stable='7.0.5.4')
+Importation('$dst/gen/clib_boot.h', '$src/clib/clib_boot.fs', name='boot')
+Compile('$dst/clib/ueforth', '$src/clib/main.c',
+        implicit=['$dst/gen/clib_boot.h'])
 
-Include('posix')
-Include('windows')
-Include('web')
-Include('pico-ice')
-Include('esp32')
-Include('site')
-Include('clib')
+Alias('clib', ' '.join([
+  TestCommand('$dst/tests/clib_see_all_test.out',
+              '$dst/clib/ueforth',
+              'echo internals see-all bye | $dst/clib/ueforth '
+              '>$dst/tests/clib_see_all_test.out 2>&1'),
+]))
+
+Default('clib')
