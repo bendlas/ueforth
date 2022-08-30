@@ -46,7 +46,7 @@ CFLAGS = $(CFLAGS_COMMON) \
          $(CFLAGS_MINIMIZE) \
          -std=c++11 \
          -Wall \
-         -Werror \
+         -Wno-error \
          -no-pie \
          -Wl,--gc-sections
 ifeq ($(OS),Darwin)
