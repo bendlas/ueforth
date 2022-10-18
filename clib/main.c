@@ -13,12 +13,19 @@
 // limitations under the License.
 
 // #include <dlfcn.h>
+
+#ifdef HAVE_SYS_MMAN
 #include <sys/mman.h>
+#endif
 
 #include "common/tier0_opcodes.h"
 #include "common/tier1_opcodes.h"
 #include "common/tier2_opcodes.h"
+#ifdef HAVE_MATH
 #include "common/floats.h"
+#else
+#define FLOATING_POINT_LIST
+#endif
 #include "common/calling.h"
 #include "common/calls.h"
 
@@ -50,12 +57,17 @@ static void forth_faults_setup(void) {
 #include "common/core.h"
 #include "common/interp.h"
 
-#include "gen/clib_boot.h"
+// #include "gen/clib_boot.h"
+char boot[32];
 
 int main(int argc, char *argv[]) {
+  #ifdef HAVE_SYS_MMAN
   void *heap = mmap(
       (void *) 0x8000000, HEAP_SIZE,
       PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  #else
+  void *heap = malloc(HEAP_SIZE);
+  #endif
   forth_init(argc, argv, heap, HEAP_SIZE, boot, sizeof(boot));
   for (;;) { g_sys->rp = forth_run(g_sys->rp); }
   return 1;
