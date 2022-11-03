@@ -14,18 +14,14 @@
 
 // #include <dlfcn.h>
 
-#ifdef HAVE_SYS_MMAN
+#if HAVE_SYS_MMAN
 #include <sys/mman.h>
 #endif
 
 #include "common/tier0_opcodes.h"
 #include "common/tier1_opcodes.h"
 #include "common/tier2_opcodes.h"
-#ifdef HAVE_MATH
 #include "common/floats.h"
-#else
-#define FLOATING_POINT_LIST
-#endif
 #include "common/calling.h"
 #include "common/calls.h"
 
@@ -57,11 +53,10 @@ static void forth_faults_setup(void) {
 #include "common/core.h"
 #include "common/interp.h"
 
-// #include "gen/clib_boot.h"
-char boot[32];
+#include "gen/clib_boot.h"
 
 int main(int argc, char *argv[]) {
-  #ifdef HAVE_SYS_MMAN
+  #if HAVE_SYS_MMAN
   void *heap = mmap(
       (void *) 0x8000000, HEAP_SIZE,
       PROT_EXEC | PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
