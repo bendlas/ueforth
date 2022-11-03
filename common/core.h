@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#define PRINT_ERRORS 1
-#define TRACE_CREATE 1
-#define TRACE_CALLS 1
-
 #define CELL_MASK (sizeof(cell_t) - 1)
 #define CELL_LEN(n) (((n) + CELL_MASK) / sizeof(cell_t))
 #define FIND(name) find((name), sizeof(name) - 1)

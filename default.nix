@@ -22,14 +22,26 @@ let
     ./common/locals.fs
   ];
 in with buildEnv.extend (self: super: {
-  cFlags = super.cFlags ++ [
-    "-Wno-error=format-security"
-    "-Wno-error=float-conversion"
-    "-Wno-error=missing-braces"
-    "-Wno-error=unused-variable"
+  cppDefines = super.cppDefines // {
+    UEFORTH_MINIMAL = "";
+    PRINT_ERRORS = "1";
+    TRACE_CREATE = "1";
+    TRACE_CALLS = "1";
+  };
+  archFlags = super.archFlags ++ [ "-no-pie" ];
+  ldFlagsWl = super.ldFlagsWl ++ [ "--build-id=none" ];
+  fFlags = super.fFlags ++ [
+    "no-exceptions" "freestanding" "no-stack-protector" "omit-frame-pointer"
+    "no-ident" "merge-all-constants"
   ];
-  ldFlags = super.ldFlags ++ [
-    "-lm"
+
+  allowWarnings = [
+    "format-security"
+    "float-conversion"
+    "missing-braces"
+    "unused-variable"
+    "sign-conversion"
+    "conversion"
   ];
   includeDirs = super.includeDirs ++ [
     (linkFarm "eforth-includes" [
@@ -47,8 +59,7 @@ in with buildEnv.extend (self: super: {
   ];
 });
 
-mkBin "eforth.bin"
-  (mkPlatformElf "eforth.elf" [
+  mkPlatformElf "eforth.elf" [
     (mkCObj "main.o" [ ./clib/main.c ])
-  ])
+  ]
     
