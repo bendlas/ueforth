@@ -24,6 +24,8 @@
 #define ENABLE_FREERTOS_SUPPORT
 #define ENABLE_SD_SUPPORT
 #define ENABLE_ESP32_FORTH_FAULT_HANDLING
+#define ENABLE_SPI_FLASH_SUPPORT
+#define ENABLE_SPI_SUPPORT
 
 // LEDC changed interface in v3.x+
 #if ESP_ARDUINO_VERSION_MAJOR >= 3
@@ -93,7 +95,7 @@
 
 #define VOCABULARY_LIST \
   V(forth) V(internals) \
-  V(rtos) V(SPIFFS) V(serial) V(SD) V(SD_MMC) V(ESP) \
+  V(rtos) V(SPIFFS) V(SPI) V(serial) V(SD) V(SD_MMC) V(ESP) \
   V(ledc) V(Wire) V(WiFi) V(sockets) \
   OPTIONAL_CAMERA_VOCABULARY \
   OPTIONAL_BLUETOOTH_VOCABULARY \
