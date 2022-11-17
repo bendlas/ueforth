@@ -102,6 +102,7 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   OPTIONAL_LEDC_SUPPORT \
   OPTIONAL_DAC_SUPPORT \
   OPTIONAL_SPIFFS_SUPPORT \
+  OPTIONAL_SPI_SUPPORT \
   OPTIONAL_WIFI_SUPPORT \
   OPTIONAL_MDNS_SUPPORT \
   OPTIONAL_SD_SUPPORT \
@@ -270,6 +271,34 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   XV(SPIFFS, "SPIFFS.format", SPIFFS_FORMAT, PUSH SPIFFS.format()) \
   XV(SPIFFS, "SPIFFS.totalBytes", SPIFFS_TOTAL_BYTES, PUSH SPIFFS.totalBytes()) \
   XV(SPIFFS, "SPIFFS.usedBytes", SPIFFS_USED_BYTES, PUSH SPIFFS.usedBytes())
+#endif
+
+// *** Support SPI ***
+#ifndef ENABLE_SPI_SUPPORT
+# define OPTIONAL_SPI_SUPPORT
+#else
+# include <SPI.h>
+# define OPTIONAL_SPI_SUPPORT \
+  XV(SPI, "SPI.begin", SPI_BEGIN, SPI.begin((int8_t) n3, (int8_t) n2, (int8_t) n1, (int8_t) n0); DROPn(4)) \
+  XV(SPI, "SPI.end", SPI_END, SPI.end();) \
+  XV(SPI, "SPI.setHwCs", SPI_SETHWCS, SPI.setHwCs((boolean) n0); DROP) \
+  XV(SPI, "SPI.setBitOrder", SPI_SETBITORDER, SPI.setBitOrder((uint8_t) n0); DROP) \
+  XV(SPI, "SPI.setDataMode", SPI_SETDATAMODE, SPI.setDataMode((uint8_t) n0); DROP) \
+  XV(SPI, "SPI.setFrequency", SPI_SETFREQUENCY, SPI.setFrequency((uint32_t) n0); DROP) \
+  XV(SPI, "SPI.setClockDivider", SPI_SETCLOCKDIVIDER, SPI.setClockDivider((uint32_t) n0); DROP) \
+  XV(SPI, "SPI.getClockDivider", SPI_GETCLOCKDIVIDER, PUSH SPI.getClockDivider();) \
+  XV(SPI, "SPI.transfer",   SPI_TRANSFER, SPI.transfer((uint8_t *) n1, (uint32_t) n0); DROPn(2)) \
+  XV(SPI, "SPI.transfer8",  SPI_TRANSFER_8,  PUSH (uint8_t)  SPI.transfer((uint8_t) n0); NIP) \
+  XV(SPI, "SPI.transfer16", SPI_TRANSFER_16, PUSH (uint16_t) SPI.transfer16((uint16_t) n0); NIP) \
+  XV(SPI, "SPI.transfer32", SPI_TRANSFER_32, PUSH (uint32_t) SPI.transfer32((uint32_t) n0); NIP) \
+  XV(SPI, "SPI.transferBytes", SPI_TRANSFER_BYTES, SPI.transferBytes((const uint8_t *) n2, (uint8_t *) n1, (uint32_t) n0); DROPn(3)) \
+  XV(SPI, "SPI.transferBits", SPI_TRANSFER_BITES, SPI.transferBits((uint32_t) n2, (uint32_t *) n1, (uint8_t) n0); DROPn(3)) \
+  XV(SPI, "SPI.write", SPI_WRITE, SPI.write((uint8_t) n0); DROP) \
+  XV(SPI, "SPI.write16", SPI_WRITE16, SPI.write16((uint16_t) n0); DROP) \
+  XV(SPI, "SPI.write32", SPI_WRITE32, SPI.write32((uint32_t) n0); DROP) \
+  XV(SPI, "SPI.writeBytes", SPI_WRITE_BYTES, SPI.writeBytes((const uint8_t *) n1, (uint32_t) n0); DROPn(2)) \
+  XV(SPI, "SPI.writePixels", SPI_WRITE_PIXELS, SPI.writePixels((const void *) n1, (uint32_t) n0); DROPn(2)) \
+  XV(SPI, "SPI.writePattern", SPI_WRITE_PATTERN, SPI.writePattern((const uint8_t *) n2, (uint8_t) n1, (uint32_t) n0); DROPn(3))
 #endif
 
 #ifndef ENABLE_FREERTOS_SUPPORT

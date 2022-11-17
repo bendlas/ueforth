@@ -47,6 +47,10 @@ vocabulary SPIFFS   SPIFFS definitions
 transfer SPIFFS-builtins
 forth definitions
 
+vocabulary SPI   SPI definitions
+transfer SPI-builtins
+forth definitions
+
 vocabulary ledc  ledc definitions
 transfer ledc-builtins
 forth definitions

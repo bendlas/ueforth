@@ -25,6 +25,8 @@
 #define ENABLE_LEDC_SUPPORT
 #define ENABLE_SD_SUPPORT
 #define ENABLE_ESP32_FORTH_FAULT_HANDLING
+#define ENABLE_SPI_FLASH_SUPPORT
+#define ENABLE_SPI_SUPPORT
 
 // SD_MMC does not work on ESP32-S2 / ESP32-C3
 #if !defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32C3)
@@ -87,7 +89,7 @@
 
 #define VOCABULARY_LIST \
   V(forth) V(internals) \
-  V(rtos) V(SPIFFS) V(serial) V(SD) V(SD_MMC) V(ESP) \
+  V(rtos) V(SPIFFS) V(SPI) V(serial) V(SD) V(SD_MMC) V(ESP) \
   V(ledc) V(Wire) V(WiFi) V(sockets) \
   OPTIONAL_CAMERA_VOCABULARY \
   OPTIONAL_BLUETOOTH_VOCABULARY \
