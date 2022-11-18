@@ -1,15 +1,24 @@
+## ---------
+## dwn build
+
+(import <nixpkgs> {})
+  .callPackage ../build-env {
+    env = "eforth";
+    config = ./dwn.nix;
+  }
+
 ## ----------------
 ## GD32 cross build
 
-let
-  env = import ../gd32v/shell.nix;
-  buildEnv = env.main.buildEnv.extend (self: super: {
-    cppDefines = super.cppDefines // {
-      HAVE_SYS_MMAN = "0";
-    };
-  });
-  elf = env.pkgsCross.callPackage ./default.nix { inherit buildEnv; };
-in buildEnv.mkBin "eforth.bin" elf
+# let
+#   env = import ../gd32v/shell.nix;
+#   buildEnv = env.main.buildEnv.extend (self: super: {
+#     cppDefines = super.cppDefines // {
+#       HAVE_SYS_MMAN = "0";
+#     };
+#   });
+#   elf = env.pkgsCross.callPackage ./default.nix { inherit buildEnv; };
+# in buildEnv.mkBin "eforth.bin" elf
 
 ## ------------
 ## native build
