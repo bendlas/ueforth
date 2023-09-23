@@ -14,7 +14,7 @@
 
 Importation('$dst/gen/clib_boot.h', '$src/clib/clib_boot.fs', name='boot')
 Compile('$dst/clib/ueforth', '$src/clib/main.c',
-        implicit=['$dst/gen/clib_boot.h'])
+        implicit=['$dst/gen/clib_boot.h', '$src/clib/faults.h'])
 
 Alias('clib', ' '.join([
   TestCommand('$dst/tests/clib_see_all_test.out',

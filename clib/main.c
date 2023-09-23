@@ -24,6 +24,7 @@
 #include "common/floats.h"
 #include "common/calling.h"
 #include "common/calls.h"
+#include "clib/faults.h"
 
 #include <stdio.h>
 
@@ -43,11 +44,6 @@
   FLOATING_POINT_LIST
 
 #define VOCABULARY_LIST V(forth) V(internals)
-
-// TODO: Implement faults.
-#define FAULT_ENTRY
-static void forth_faults_setup(void) {
-}
 
 #include "common/bits.h"
 #include "common/core.h"
