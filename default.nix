@@ -46,6 +46,7 @@ in with buildEnv.extend (self: super: {
   includeDirs = super.includeDirs ++ [
     (linkFarm "eforth-includes" [
       { name = "common"; path = ./common; }
+      { name = "clib"; path = ./clib; }
       {
         name = "gen/clib_boot.h";
         path = runCommand "clib_boot.h" {

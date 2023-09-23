@@ -507,6 +507,7 @@ $(CLIB):
 
 $(CLIB)/ueforth: \
     clib/main.c \
+    clib/faults.h \
     common/tier0_opcodes.h \
     common/tier1_opcodes.h \
     common/tier2_opcodes.h \

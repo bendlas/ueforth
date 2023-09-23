@@ -24,6 +24,7 @@
 #include "common/floats.h"
 #include "common/calling.h"
 #include "common/calls.h"
+#include "clib/faults.h"
 
 #include <stdio.h>
 
