@@ -42,7 +42,7 @@ CFLAGS_MINIMIZE = [
   '-s',
   '-DUEFORTH_MINIMAL',
   '-fno-exceptions',
-  '-ffreestanding',
+  # '-ffreestanding',
   '-fno-stack-protector',
   '-fomit-frame-pointer',
   '-fno-ident',
