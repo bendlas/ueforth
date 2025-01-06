@@ -170,6 +170,29 @@ static int match(char sep, char ch) {
   return sep == ch || (sep == ' ' && (ch == '\t' || ch == '\n' || ch == '\r'));
 }
 
+/* Parsing
+
+Requirements
+
+- Parse pre-set program text
+  - Can be from flash, so no re-using pre-set buffer
+- Parse stream
+  - Should be able to refill while parsing
+- Detect parse buffer overflow
+- Need to return contigous buffer
+- Maybe need to parse while input buffer still filled?
+  - to be predicated o input buffer not empty?
+    - would allow subparse within last parse
+  - needs to move buffer to start=0?
+    - would allow "sub"-parse past last parse
+
+Implementation
+
+- Input buffer is dedicated return
+  - re-filled only when empty (allow subparse within last parse)
+  - re-fill always starts at 0
+*/
+
 static cell_t parse(cell_t sep, cell_t *ret) {
   if (sep == ' ') {
     while (g_sys->tin < g_sys->ntib &&
