@@ -34,7 +34,7 @@ void putsn(const int len, const char * str) {
   fflush(stdout);
 }
 void log_err(const char* label, const size_t length, const void * string) {
-  fprintf(stderr, label);
+  fprintf(stderr, "%s", label);
   fwrite((void *) string, 1, length, stderr);
   fprintf(stderr, "\n");
 }
@@ -152,7 +152,7 @@ static void finish(void) {
 }
 
 static void create(const char *name, cell_t nlength, cell_t flags, void *op) {
-#if PRINT_ERRORS && TRACE_CREATE
+#if TRACE_CREATE
   log_err("defining: ", nlength, name);
 #endif
   finish();
@@ -166,10 +166,6 @@ static void create(const char *name, cell_t nlength, cell_t flags, void *op) {
   COMMA(op);  // code
 }
 
-static int match(char sep, char ch) {
-  return sep == ch || (sep == ' ' && (ch == '\t' || ch == '\n' || ch == '\r'));
-}
-
 /* Parsing
 
 Requirements
@@ -180,7 +176,7 @@ Requirements
   - Should be able to refill while parsing
 - Detect parse buffer overflow
 - Need to return contigous buffer
-- Maybe need to parse while input buffer still filled?
+- Maybe need to parse while input buffer still filled? - No
   - to be predicated o input buffer not empty?
     - would allow subparse within last parse
   - needs to move buffer to start=0?
@@ -189,22 +185,79 @@ Requirements
 Implementation
 
 - Input buffer is dedicated return
-  - re-filled only when empty (allow subparse within last parse)
-  - re-fill always starts at 0
+  - parse always fills from start 0
+
+TODO
+
+- reconcile with key
+- reconcile with ok
 */
 
-static cell_t parse(cell_t sep, cell_t *ret) {
-  if (sep == ' ') {
-    while (g_sys->tin < g_sys->ntib &&
-           match(sep, g_sys->tib[g_sys->tin])) { ++g_sys->tin; }
+/**
+   Result buffer is g_sys->tib
+   Result length is g_sys->tin
+ */
+static cell_t parseStar(CH_PREDICATE matcher, char sep) {
+  g_sys->tin = 0;
+  g_sys->ntib = 0;
+  while(g_sys->ntib < g_sys->ctib) {
+    char ch;
+    CH_MATCH m;
+    int res = g_sys->get_input_bytes(&ch, 1);
+    switch(res) {
+    case 1:
+      m = matcher(sep, ch);
+      if ((    g_sys->tin == 0
+               && m & CH_MATCH_IGNORE)
+          || ( g_sys->tin != 0
+               && m & CH_MATCH_NONE
+               && m & CH_MATCH_IGNORE)) {
+      } else {
+        g_sys->tib[g_sys->ntib] = ch;
+        ++g_sys->ntib;
+        if (m & CH_MATCH_NONE) {
+          g_sys->tin = g_sys->ntib;
+        } else {
+          return ch;
+        }
+      }
+      break;
+    case STREAM_CLOSED:
+      return STREAM_CLOSED;
+    default:
+#if PRINT_ERRORS
+      log_err("Unexpected get_input_bytes result ", sizeof(int), &res);
+#endif
+      return STREAM_ERROR;
+    }
   }
-  cell_t start = g_sys->tin;
-  while (g_sys->tin < g_sys->ntib &&
-         !match(sep, g_sys->tib[g_sys->tin])) { ++g_sys->tin; }
-  cell_t len = g_sys->tin - start;
-  if (g_sys->tin < g_sys->ntib) { ++g_sys->tin; }
-  *ret = (cell_t) (g_sys->tib + start);
-  return len;
+#if PRINT_ERRORS
+  char msg[] = { '\'', sep, '\'' };
+  log_err("Exceeded input buffer capacity while looking for ", 3, msg);
+#endif
+  return STREAM_ERROR;
+}
+
+static CH_MATCH matchStarDefault(cell_t sep, char ch) {
+  if (sep == ' ') {
+    switch (ch) {
+    case ' ':
+    case '\t':
+    case '\n':
+    case '\r':
+      return (CH_MATCH) (CH_MATCH_SOME | CH_MATCH_IGNORE);
+    }
+  } else if ( ch == sep ) {
+    return CH_MATCH_SOME;
+  }
+  return CH_MATCH_NONE;
+}
+
+static cell_t parse(cell_t sep, cell_t *ret) {
+  fprintf(stderr, "parse %ld\n", sep);
+  parseStar(matchStarDefault, sep);
+  *ret = (cell_t) (g_sys->tib);
+  return g_sys->tin;
 }
 
 static cell_t *evaluate1(cell_t *rp) {
@@ -214,8 +267,8 @@ static cell_t *evaluate1(cell_t *rp) {
   UNPARK;
   cell_t name;
   cell_t len = parse(' ', &name);
-#if PRINT_ERRORS && TRACE_CALLS
-  log_err("Parsed, evaluting: ", len, (void *) name);
+#if TRACE_CALLS
+  log_err("evaluting: ", len, (void *) name);
 #endif
   if (len == 0) { DUP; tos = 0; PARK; return rp; }  // ignore empty
   cell_t xt = find((const char *) name, len);
@@ -239,6 +292,23 @@ static cell_t *evaluate1(cell_t *rp) {
 }
 
 static cell_t *forth_run(cell_t *initrp);
+
+static const size_t in_buffer_capacity = 2048;
+static char in_buffer[in_buffer_capacity];
+
+static int default_get_input_bytes(char *buf, int len) {
+  int cnt = 0;
+  while (cnt < len) {
+    int ch = getchar();
+    if (ch < 0) {
+      return ch;
+    } else {
+      buf[cnt] = (char) ch;
+      ++cnt;
+    }
+  }
+  return cnt;
+}
 
 static void forth_init(int argc, char *argv[],
                        void *heap, cell_t heap_size,
@@ -295,8 +365,10 @@ static void forth_init(int argc, char *argv[],
   g_sys->argc = argc;
   g_sys->argv = argv;
   g_sys->base = 10;
-  g_sys->tib = src;
-  g_sys->ntib = src_len;
+  g_sys->tib = in_buffer;
+  g_sys->ctib = in_buffer_capacity;
+  g_sys->ntib = 0;
+  g_sys->get_input_bytes = default_get_input_bytes;
 
   *++rp = (cell_t) start;
   *++rp = (cell_t) fp;

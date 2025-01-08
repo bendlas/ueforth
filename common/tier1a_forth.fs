@@ -64,7 +64,7 @@
        sys: 'heap-start   sys: 'heap-size    sys: 'stack-cells
        sys: 'boot         sys: 'boot-size
        sys: 'tib          sys: #tib          sys: >in
-       sys: state         sys: base
+       sys: state         sys: base          sys: ctib
        sys: 'argc         sys: 'argv         sys: 'runner
 drop
 : context ( -- a ) 'context @ cell+ ;

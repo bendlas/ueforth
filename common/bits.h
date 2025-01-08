@@ -16,6 +16,20 @@
 #define SMUDGE 2
 #define BUILTIN_FORK 4
 #define BUILTIN_MARK 8
+#define STREAM_CLOSED -1
+#define STREAM_ERROR -2
+
+typedef enum {
+  CH_MATCH_SOME = 0,
+  CH_MATCH_NONE = 1,
+  CH_MATCH_IGNORE = 2
+} CH_MATCH;
+
+typedef enum {
+  PARSE_INIT, PARSE_SOME
+} PARSE_STATE;
+
+typedef CH_MATCH (* CH_PREDICATE)(cell_t sep, char ch);
 
 typedef struct {
   cell_t *heap, **current, ***context;
@@ -24,12 +38,21 @@ typedef struct {
   cell_t heap_size, stack_cells;
   const char *boot;
   cell_t boot_size;
-  const char *tib;
-  cell_t ntib, tin, state, base;
+  char * tib; // pointer to input buffer
+  cell_t ntib // size of input buffer
+       , tin // read position in input buffer
+       , state
+       , base
+       , ctib // capacity of input buffer
+    ;
   int argc;
   char **argv;
   cell_t *(*runner)(cell_t *rp);  // pointer to forth_run
+  // align with tier1a_forth.fs 'sys
+
   cell_t **throw_handler;
+
+  int (*get_input_bytes)(char *buf, int len);  // blocking read of length
 
   // Layout not used by Forth.
   cell_t *rp;  // spot to park main thread
