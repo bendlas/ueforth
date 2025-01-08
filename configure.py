@@ -33,9 +33,12 @@ else:
   NINJA_DIR = '.'
 
 CFLAGS_COMMON = [
-  '-O2',
+  '-ggdb',
   '-I', '$src',
   '-I', '$dst',
+  '-DPRINT_ERRORS=1',
+  '-DTRACE_CREATE=1',
+  '-DTRACE_CALLS=1',
 ]
 
 CFLAGS_MINIMIZE = [
@@ -53,12 +56,11 @@ CFLAGS_MINIMIZE = [
 if sys.platform == 'linux':
   CFLAGS_MINIMIZE.append('-Wl,--build-id=none')
 
-CFLAGS = CFLAGS_COMMON + CFLAGS_MINIMIZE + [
+CFLAGS = CFLAGS_COMMON + [
   '-std=c++11',
   '-Wall',
   '-Werror',
   '-no-pie',
-  '-Wl,--gc-sections',
 ]
 
 if sys.platform == 'darwin':
@@ -68,7 +70,6 @@ if sys.platform == 'darwin':
   ]
 elif sys.platform == 'linux':
   CFLAGS += [
-    '-s',
     '-Wl,--gc-sections',
     '-no-pie',
     '-Wl,--build-id=none',
@@ -282,7 +283,7 @@ rule compile
   description = CXX $in
   depfile = $out.d
   deps = gcc
-  command = $CXX $CFLAGS $in -o $out $LIBS -MD -MF $depfile && strip $STRIP_ARGS $out
+  command = $CXX $CFLAGS $in -o $out $LIBS -MD -MF $depfile
 
 rule compile_sim
   description = CXX_SIM $in
