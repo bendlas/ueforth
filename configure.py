@@ -195,7 +195,7 @@ def DetectGenericTools(args):
       sys.stderr.write('V8 checkout in $HOME/src/v8 not found, '
                        'disabling asm.js tests.\n')
   try:
-    LSQ('/usr/bin/nodejs')
+    LSQ('/run/current-system/sw/bin/node')
     WEB_ENABLED = True
   except:
     if not args.quiet:
